@@ -3,9 +3,28 @@ name = "paillier"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "generate_keypair"
+path = "generate_keypair/src/main.rs"
+
+
+[[bin]]
+name = "encrypt_plaintext"
+path = "encrypt_plaintext/src/main.rs"
+
+[[bin]]
+name = "decrypt_ciphertext"
+path = "decrypt_ciphertext/src/main.rs"
+
+
+[[bin]]
+name = "verify_homomorphism"
+path = "verify_homomorphism/src/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 num-primes = "0.3.0"
 rug = "1.19.2"
 hex = "0.4.3"
+base64 = "0.20.0"

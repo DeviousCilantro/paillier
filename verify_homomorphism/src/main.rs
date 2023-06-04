@@ -54,31 +54,17 @@ fn verify_homomorphism(m1: &Integer, m2: &Integer, pk: (Integer, Integer), sk: (
     let product = (m1.clone() * m2.clone()) % n.clone();
     let c1 = encrypt_plaintext(m1, pk.clone());
     let c2 = encrypt_plaintext(m2, pk);
+    assert_eq!(decrypt_ciphertext(c1.clone(), sk.clone(), n.clone()), *m1, "Correctness not verified");
+    assert_eq!(decrypt_ciphertext(c2.clone(), sk.clone(), n.clone()), *m2, "Correctness not verified");
     assert_eq!(decrypt_ciphertext(c1.clone() * c2.clone() % nsq.clone(), sk.clone(), n.clone()), sum, "Not additively homomorphic");
     assert_eq!(decrypt_ciphertext(((c1.clone() % nsq.clone()) * (g.secure_pow_mod(m2, &nsq))) % nsq.clone(), sk.clone(), n.clone()), sum, "Not additively homomorphic");
     assert_eq!(decrypt_ciphertext(c1.secure_pow_mod(m2, &nsq), sk.clone(), n.clone()), product, "Not additively homomorphic");
     assert_eq!(decrypt_ciphertext(c2.secure_pow_mod(m1, &nsq), sk, n), product, "Not additively homomorphic");
-    println!("Verified additive homomorphism.");
+    println!("Verified additive homomorphism and correctness.");
 }
 
 fn main() {
-    print!("Enter a string: ");
-    io::stdout().flush().unwrap();
-    let mut input = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .unwrap();
-    let input = input.trim();
-    let (pk, sk) = generate_keypair();
-    let input_plaintext = Integer::from_str_radix(&hex::encode(input), 16).unwrap();
-    let ciphertext = encrypt_plaintext(&input_plaintext, pk.clone());
-    println!("Encrypted ciphertext: {}", &ciphertext);
-    let output_plaintext = decrypt_ciphertext(ciphertext, sk.clone(), pk.clone().0);
-    assert_eq!(input_plaintext, output_plaintext, "Correctness not proved");
-    let output_plaintext = format!("{:X}", &output_plaintext);
-    println!("Decrypted plaintext: {}", String::from_utf8(hex::decode(output_plaintext).unwrap()).unwrap());
-    println!("Correctness proved.");
-    println!("Now enter two more strings to verify additive homomorphism.");
+    println!("Enter two strings to verify additive homomorphism and correctness.");
     let mut input = String::new();
     print!("Enter m1: ");
     io::stdout().flush().unwrap();
@@ -95,5 +81,6 @@ fn main() {
         .unwrap();
     let input = input.trim();
     let m2 = Integer::from_str_radix(&hex::encode(input), 16).unwrap();
+    let (pk, sk) = generate_keypair();
     verify_homomorphism(&m1, &m2, pk, sk);
 }

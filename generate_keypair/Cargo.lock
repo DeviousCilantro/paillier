@@ -42,6 +42,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 
 [[package]]
+name = "generate_keypair"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "num-primes",
+ "rug",
+]
+
+[[package]]
 name = "gmp-mpfr-sys"
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -50,12 +59,6 @@ dependencies = [
  "libc",
  "windows-sys",
 ]
-
-[[package]]
-name = "hex"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "libc"
@@ -155,16 +158,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "paillier"
-version = "0.1.0"
-dependencies = [
- "base64",
- "hex",
- "num-primes",
- "rug",
 ]
 
 [[package]]
