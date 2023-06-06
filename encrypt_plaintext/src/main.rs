@@ -1,16 +1,17 @@
 use std::io;
 use std::io::Write;
-use rug::{Integer, rand};
+use ring::rand::{SystemRandom, SecureRandom};
+use rug::Integer;
 use base64;
 
 fn encrypt_plaintext(plaintext: &Integer, pk: (Integer, Integer)) -> Integer {
+    let rand = SystemRandom::new();
     let (n, g) = pk;
     let nsq = n.clone() * n.clone();
     if *plaintext >= 0 && *plaintext < n {
         let mut r;
         loop {
-            let mut rand = rand::RandState::new();
-            r = n.clone().random_below(&mut rand);
+            r = random_integer(&rand, n.clone());
             if r.clone().gcd(&n) == 1 {
                 break;
             };
@@ -18,6 +19,17 @@ fn encrypt_plaintext(plaintext: &Integer, pk: (Integer, Integer)) -> Integer {
         (g.secure_pow_mod(plaintext, &nsq) * r.secure_pow_mod(&n, &nsq)) % nsq
     } else {
         Integer::from(0)
+    }
+}
+
+fn random_integer(rng: &SystemRandom, range: Integer) -> Integer {
+    loop {
+        let mut bytes = vec![0; ((range.significant_bits() + 7) / 8) as usize];
+        rng.fill(&mut bytes).unwrap();
+        let num = Integer::from_digits(&bytes, rug::integer::Order::Lsf);
+        if num < range {
+            return num;
+        }
     }
 }
 

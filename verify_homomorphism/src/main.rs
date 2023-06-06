@@ -1,9 +1,11 @@
 use std::io;
 use std::io::Write;
+use ring::rand::{SystemRandom, SecureRandom};
 use num_primes::Generator;
-use rug::{Integer, rand};
+use rug::Integer;
 
 fn generate_keypair() -> ((Integer, Integer), (Integer, Integer)) {
+    let rand = SystemRandom::new();
     let p = Integer::from_str_radix(&Generator::safe_prime(512).to_string(), 10).unwrap();
     let q = Integer::from_str_radix(&Generator::safe_prime(512).to_string(), 10).unwrap();
     let n = p.clone() * q.clone();
@@ -11,8 +13,7 @@ fn generate_keypair() -> ((Integer, Integer), (Integer, Integer)) {
     let lambda = Integer::lcm(p - Integer::from(1), &(q - Integer::from(1)));
     let mut g;
     loop {
-        let mut rand = rand::RandState::new();
-        g = nsq.clone().random_below(&mut rand);
+        g = random_integer(&rand, nsq.clone());
         if g.clone().gcd(&nsq) == 1 {
             break;
         };
@@ -21,14 +22,25 @@ fn generate_keypair() -> ((Integer, Integer), (Integer, Integer)) {
     ((n, g), (lambda, mu))
 }
 
+fn random_integer(rng: &SystemRandom, range: Integer) -> Integer {
+    loop {
+        let mut bytes = vec![0; ((range.significant_bits() + 7) / 8) as usize];
+        rng.fill(&mut bytes).unwrap();
+        let num = Integer::from_digits(&bytes, rug::integer::Order::Lsf);
+        if num < range {
+            return num;
+        }
+    }
+}
+
 fn encrypt_plaintext(plaintext: &Integer, pk: (Integer, Integer)) -> Integer {
+    let rand = SystemRandom::new();
     let (n, g) = pk;
     let nsq = n.clone() * n.clone();
     if *plaintext >= 0 && *plaintext < n {
         let mut r;
         loop {
-            let mut rand = rand::RandState::new();
-            r = n.clone().random_below(&mut rand);
+            r = random_integer(&rand, n.clone());
             if r.clone().gcd(&n) == 1 {
                 break;
             };
